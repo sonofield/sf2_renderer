@@ -1,7 +1,7 @@
-name: dart_melty_soundfont
+name: sf2_renderer
 description: A Soundfont synthesizer (i.e. '.sf2' player) written in pure Dart.
 version: 3.0.1
-homepage: https://github.com/chipweinberger/dart_melty_soundfont
+homepage: https://github.com/sonofield/sf2_renderer
 
 
 environment:
