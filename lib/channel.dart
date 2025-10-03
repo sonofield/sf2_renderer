@@ -1,4 +1,4 @@
-﻿import 'dart:typed_data';
+import 'dart:typed_data';
 
 import 'soundfont_math.dart';
 import 'synthesizer.dart';
@@ -30,63 +30,64 @@ class Channel {
 
   double _pitchBend;
 
-  Channel(
-      {required this.synthesizer,
-      required this.isPercussionChannel,
-      required this.blockLeft,
-      required this.blockRight,
-      required int bankNumber,
-      required int patchNumber,
-      required int modulation,
-      required int volume,
-      required int pan,
-      required int expression,
-      required bool holdPedal,
-      required bool sostento,
-      required int reverbSend,
-      required int chorusSend,
-      required int rpn,
-      required int pitchBendRange,
-      required int coarseTune,
-      required int fineTune,
-      required double pitchBend})
-      : _bankNumber = bankNumber,
-        _patchNumber = patchNumber,
-        _modulation = modulation,
-        _volume = volume,
-        _pan = pan,
-        _expression = expression,
-        _holdPedal = holdPedal,
-        _sostenuto = sostento,
-        _reverbSend = reverbSend,
-        _chorusSend = chorusSend,
-        _rpn = rpn,
-        _pitchBendRange = pitchBendRange,
-        _coarseTune = coarseTune,
-        _fineTune = fineTune,
-        _pitchBend = pitchBend;
+  Channel({
+    required this.synthesizer,
+    required this.isPercussionChannel,
+    required this.blockLeft,
+    required this.blockRight,
+    required int bankNumber,
+    required int patchNumber,
+    required int modulation,
+    required int volume,
+    required int pan,
+    required int expression,
+    required bool holdPedal,
+    required bool sostento,
+    required int reverbSend,
+    required int chorusSend,
+    required int rpn,
+    required int pitchBendRange,
+    required int coarseTune,
+    required int fineTune,
+    required double pitchBend,
+  }) : _bankNumber = bankNumber,
+       _patchNumber = patchNumber,
+       _modulation = modulation,
+       _volume = volume,
+       _pan = pan,
+       _expression = expression,
+       _holdPedal = holdPedal,
+       _sostenuto = sostento,
+       _reverbSend = reverbSend,
+       _chorusSend = chorusSend,
+       _rpn = rpn,
+       _pitchBendRange = pitchBendRange,
+       _coarseTune = coarseTune,
+       _fineTune = fineTune,
+       _pitchBend = pitchBend;
 
   factory Channel.create(Synthesizer synthesizer, bool isPercussionChannel) {
     Channel c = Channel(
-        synthesizer: synthesizer,
-        isPercussionChannel: isPercussionChannel,
-        blockLeft: Float32List(synthesizer.blockSize),
-        blockRight: Float32List(synthesizer.blockSize),
-        bankNumber: 0,
-        patchNumber: 0,
-        modulation: 0,
-        volume: 0,
-        pan: 0,
-        expression: 0,
-        holdPedal: false,
-        sostento: false,
-        reverbSend: 0,
-        chorusSend: 0,
-        rpn: 0,
-        pitchBendRange: 0,
-        coarseTune: 0,
-        fineTune: 0,
-        pitchBend: 0.0);
+      synthesizer: synthesizer,
+      isPercussionChannel: isPercussionChannel,
+      blockLeft: Float32List(synthesizer.blockSize),
+      blockRight: Float32List(synthesizer.blockSize),
+      bankNumber: 0,
+      patchNumber: 0,
+      modulation: 0,
+      volume: 0,
+      pan: 0,
+      expression: 0,
+      holdPedal: false,
+      sostento: false,
+      reverbSend: 0,
+      chorusSend: 0,
+      rpn: 0,
+      pitchBendRange: 0,
+      coarseTune: 0,
+      fineTune: 0,
+      pitchBend: 0.0,
+    );
 
     c.reset();
 
@@ -244,7 +245,8 @@ class Channel {
   double get reverbSend => (1.0 / 127.0) * _reverbSend;
   double get chorusSend => (1.0 / 127.0) * _chorusSend;
 
-  double get pitchBendRange => (_pitchBendRange >> 7) + 0.01 * (_pitchBendRange & 0x7F);
+  double get pitchBendRange =>
+      (_pitchBendRange >> 7) + 0.01 * (_pitchBendRange & 0x7F);
   double get tune => _coarseTune + (1.0 / 8192.0) * (_fineTune - 8192);
 
   double get pitchBend => pitchBendRange * _pitchBend;

@@ -1,6 +1,6 @@
-﻿import 'synthesizer.dart';
-import 'voice.dart';
 import 'instrument_region.dart';
+import 'synthesizer.dart';
+import 'voice.dart';
 
 class VoiceCollection extends Iterable<Voice> {
   final Synthesizer synthesizer;
@@ -11,7 +11,10 @@ class VoiceCollection extends Iterable<Voice> {
 
   VoiceCollection({required this.synthesizer, required this.voices});
 
-  factory VoiceCollection.create(Synthesizer synthesizer, int maxActiveVoiceCount) {
+  factory VoiceCollection.create(
+    Synthesizer synthesizer,
+    int maxActiveVoiceCount,
+  ) {
     List<Voice> voices = [];
 
     for (int i = 0; i < maxActiveVoiceCount; i++) {
@@ -30,7 +33,8 @@ class VoiceCollection extends Iterable<Voice> {
       for (var i = 0; i < _activeVoiceCount; i++) {
         var voice = voices[i];
 
-        if (voice.exclusiveClass() == exclusiveClass && voice.channel() == channel) {
+        if (voice.exclusiveClass() == exclusiveClass &&
+            voice.channel() == channel) {
           return voice;
         }
       }
@@ -95,7 +99,7 @@ class VoiceCollection extends Iterable<Voice> {
   int activeVoiceCount() => _activeVoiceCount;
 }
 
-class VoiceIterator extends Iterator<Voice> {
+class VoiceIterator implements Iterator<Voice> {
   final VoiceCollection collection;
 
   int _index = 0;

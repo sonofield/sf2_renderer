@@ -1,4 +1,4 @@
-﻿import 'binary_reader.dart';
+import 'binary_reader.dart';
 import 'soundfont_version.dart';
 
 /// The information of a SoundFont.
@@ -15,18 +15,19 @@ class SoundFontInfo {
   final String comments;
   final String tools;
 
-  SoundFontInfo(
-      {required this.version,
-      required this.targetSoundEngine,
-      required this.bankName,
-      required this.romName,
-      required this.romVersion,
-      required this.creationDate,
-      required this.author,
-      required this.targetProduct,
-      required this.copyright,
-      required this.comments,
-      required this.tools});
+  SoundFontInfo({
+    required this.version,
+    required this.targetSoundEngine,
+    required this.bankName,
+    required this.romName,
+    required this.romVersion,
+    required this.creationDate,
+    required this.author,
+    required this.targetProduct,
+    required this.copyright,
+    required this.comments,
+    required this.tools,
+  });
 
   factory SoundFontInfo.fromReader(BinaryReader reader) {
     String chunkId = reader.readFourCC();
@@ -98,17 +99,18 @@ class SoundFontInfo {
     }
 
     return SoundFontInfo(
-        version: version,
-        targetSoundEngine: targetSoundEngine,
-        bankName: bankName,
-        romName: romName,
-        romVersion: romVersion,
-        creationDate: creationDate,
-        author: author,
-        targetProduct: targetProduct,
-        copyright: copyright,
-        comments: comments,
-        tools: tools);
+      version: version,
+      targetSoundEngine: targetSoundEngine,
+      bankName: bankName,
+      romName: romName,
+      romVersion: romVersion,
+      creationDate: creationDate,
+      author: author,
+      targetProduct: targetProduct,
+      copyright: copyright,
+      comments: comments,
+      tools: tools,
+    );
   }
 
   /// Gets the name of the SoundFont.

@@ -1,5 +1,5 @@
-import 'dart:typed_data';
 import 'dart:io';
+import 'dart:typed_data';
 
 class BinaryReader {
   final Uint8List bytes;

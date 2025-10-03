@@ -1,4 +1,4 @@
-﻿enum GeneratorType {
+enum GeneratorType {
   startAddressOffset,
   endAddressOffset,
   startLoopAddressOffset,
@@ -59,7 +59,7 @@
   exclusiveClass,
   overridingRootKey,
   unused5,
-  unusedEnd
+  unusedEnd,
 }
 
 GeneratorType generatorTypeFromInt(int v) {

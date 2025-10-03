@@ -1,34 +1,20 @@
-﻿import 'dart:typed_data';
+import 'dart:typed_data';
 
 import 'audio_renderer.dart';
-import 'array_int16.dart';
 
 /// Provides utility methods to convert the format of samples.
 extension AudioRenderEx on AudioRenderer {
-  /// <summary>
   /// Renders the waveform as a stereo interleaved signal.
-  /// </summary>
-  /// <param name="renderer">The audio renderer.</param>
-  /// <param name="destination">The destination buffer.</param>
-  /// <remarks>
-  /// This utility method internally uses <see cref="ArrayPool{T}"/>,
-  /// which may result in memory allocation on the first call.
-  /// To completely avoid memory allocation,
-  /// use <see cref="IAudioRenderer.Render(Span{float}, Span{float})"/>.
-  /// </remarks>
-  void renderInterleaved(Float32List destination, {int offset = 0, int? length}) {
+  void renderInterleaved(
+    Float32List destination, {
+    int offset = 0,
+    int? length,
+  }) {
     if (destination.length % 2 != 0) {
-      throw "The length of the destination buffer must be even.";
+      throw 'The length of the destination buffer must be even.';
     }
 
-    int sampleCount = 0;
-
-    if (length != null) {
-      sampleCount = length;
-    } else {
-      sampleCount = destination.length ~/ 2;
-      sampleCount -= offset;
-    }
+    int sampleCount = length ?? (destination.length ~/ 2 - offset);
 
     final left = Float32List(sampleCount);
     final right = Float32List(sampleCount);
@@ -36,26 +22,14 @@ extension AudioRenderEx on AudioRenderer {
     render(left, right);
 
     for (var t = 0; t < sampleCount; t++) {
-      destination[offset + t * 2 + 0] = left[t];
+      destination[offset + t * 2] = left[t];
       destination[offset + t * 2 + 1] = right[t];
     }
   }
 
-  /// <summary>
   /// Renders the waveform as a monaural signal.
-  /// </summary>
-  /// <param name="renderer">The audio renderer.</param>
-  /// <param name="destination">The destination buffer.</param>
-  /// <remarks>
-  /// This utility method internally uses <see cref="ArrayPool{T}"/>,
-  /// which may result in memory allocation on the first call.
-  /// To completely avoid memory allocation,
-  /// use <see cref="IAudioRenderer.Render(Span{float}, Span{float})"/>.
-  /// </remarks>
   void renderMono(Float32List destination, {int offset = 0}) {
-    int sampleCount = destination.length ~/ 2;
-
-    sampleCount -= offset;
+    int sampleCount = destination.length - offset;
 
     final left = Float32List(sampleCount);
     final right = Float32List(sampleCount);
@@ -67,31 +41,17 @@ extension AudioRenderEx on AudioRenderer {
     }
   }
 
-  /// <summary>
   /// Renders the waveform as a stereo interleaved signal with 16-bit quantization.
-  /// </summary>
-  /// <param name="renderer">The audio renderer.</param>
-  /// <param name="destination">The destination buffer.</param>
-  /// <remarks>
-  /// Out of range samples will be clipped.
-  /// This utility method internally uses <see cref="ArrayPool{T}"/>,
-  /// which may result in memory allocation on the first call.
-  /// To completely avoid memory allocation,
-  /// use <see cref="IAudioRenderer.Render(Span{float}, Span{float})"/>.
-  /// </remarks>
-  void renderInterleavedInt16(ArrayInt16 destination, {int offset = 0, int? length}) {
-    if (destination.bytes.lengthInBytes % 4 != 0) {
-      throw "Invalid destination length";
+  void renderInterleavedInt16(
+    Int16List destination, {
+    int offset = 0,
+    int? length,
+  }) {
+    if (destination.length % 2 != 0) {
+      throw 'Invalid destination length';
     }
 
-    int sampleCount = 0;
-
-    if (length != null) {
-      sampleCount = length;
-    } else {
-      sampleCount = destination.bytes.lengthInBytes ~/ 4;
-      sampleCount -= offset;
-    }
+    int sampleCount = length ?? (destination.length ~/ 2 - offset);
 
     final left = Float32List(sampleCount);
     final right = Float32List(sampleCount);
@@ -99,40 +59,18 @@ extension AudioRenderEx on AudioRenderer {
     render(left, right);
 
     for (var t = 0; t < sampleCount; t++) {
-      int sampleLeft = (32768 * left[t]).toInt();
-      int sampleRight = (32768 * right[t]).toInt();
+      // Clamp values between -32768 and 32767 to prevent overflow
+      int sampleLeft = (32768 * left[t]).clamp(-32768, 32767).toInt();
+      int sampleRight = (32768 * right[t]).clamp(-32768, 32767).toInt();
 
-      // these get automaticall casted to shorts in ArrayInt16[]
-      destination[offset + t * 2 + 0] = sampleLeft;
+      destination[offset + t * 2] = sampleLeft;
       destination[offset + t * 2 + 1] = sampleRight;
     }
   }
 
-  /// <summary>
   /// Renders the waveform as a monaural signal with 16-bit quantization.
-  /// </summary>
-  /// <param name="renderer">The audio renderer.</param>
-  /// <param name="destination">The destination buffer.</param>
-  /// <remarks>
-  /// Out of range samples will be clipped.
-  /// This utility method internally uses <see cref="ArrayPool{T}"/>,
-  /// which may result in memory allocation on the first call.
-  /// To completely avoid memory allocation,
-  /// use <see cref="IAudioRenderer.Render(Span{float}, Span{float})"/>.
-  /// </remarks>
-  void renderMonoInt16(ArrayInt16 destination, {int offset = 0, int? length}) {
-    if (destination.bytes.lengthInBytes % 2 != 0) {
-      throw "Invalid destination length";
-    }
-
-    int sampleCount = 0;
-
-    if (length != null) {
-      sampleCount = length;
-    } else {
-      sampleCount = destination.bytes.lengthInBytes ~/ 2;
-      sampleCount -= offset;
-    }
+  void renderMonoInt16(Int16List destination, {int offset = 0, int? length}) {
+    int sampleCount = length ?? (destination.length - offset);
 
     final left = Float32List(sampleCount);
     final right = Float32List(sampleCount);
@@ -140,7 +78,8 @@ extension AudioRenderEx on AudioRenderer {
     render(left, right);
 
     for (var t = 0; t < sampleCount; t++) {
-      int sample = (16384 * (left[t] + right[t])).toInt();
+      // Mix to mono and convert to 16-bit integer with clamping
+      int sample = (16384 * (left[t] + right[t])).clamp(-32768, 32767).toInt();
       destination[offset + t] = sample;
     }
   }

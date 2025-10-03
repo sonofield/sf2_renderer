@@ -1,15 +1,14 @@
-﻿import 'dart:typed_data';
+import 'dart:typed_data';
 
-import 'instrument_region.dart';
-import 'array_int16.dart';
-import 'sample_header.dart';
-import 'preset.dart';
-import 'instrument.dart';
 import 'binary_reader.dart';
-import 'soundfont_info.dart';
-import 'soundfont_sample_data.dart';
-import 'soundfont_parameters.dart';
+import 'instrument.dart';
+import 'instrument_region.dart';
 import 'loop_mode.dart';
+import 'preset.dart';
+import 'sample_header.dart';
+import 'soundfont_info.dart';
+import 'soundfont_parameters.dart';
+import 'soundfont_sample_data.dart';
 
 class SoundFont {
   final SoundFontInfo info;
@@ -18,7 +17,7 @@ class SoundFont {
   final int bitsPerSample;
 
   /// This single array contains all the waveform data in the SoundFont.
-  final ArrayInt16 waveData;
+  final Int16List waveData;
 
   /// An instance of 'SampleHeader' corresponds to a slice of
   /// the waveData array. i.e a sample.
@@ -27,38 +26,37 @@ class SoundFont {
   final List<Preset> presets;
   final List<Instrument> instruments;
 
-  SoundFont(
-      {required this.info,
-      required this.bitsPerSample,
-      required this.waveData,
-      required this.sampleHeaders,
-      required this.presets,
-      required this.instruments});
+  SoundFont({
+    required this.info,
+    required this.bitsPerSample,
+    required this.waveData,
+    required this.sampleHeaders,
+    required this.presets,
+    required this.instruments,
+  });
 
   /// Loads a SoundFont from the file.
   factory SoundFont.fromFile(String path) {
     BinaryReader reader = BinaryReader.fromFile(path);
-
     return SoundFont.fromBinaryReader(reader);
   }
 
   factory SoundFont.fromByteData(ByteData bytes) {
     BinaryReader reader = BinaryReader.fromByteData(bytes);
-
     return SoundFont.fromBinaryReader(reader);
   }
 
   factory SoundFont.fromBinaryReader(BinaryReader reader) {
     String chunkId = reader.readFourCC();
-    if (chunkId != "RIFF") {
-      throw "The RIFF chunk was not found.";
+    if (chunkId != 'RIFF') {
+      throw 'The RIFF chunk was not found.';
     }
 
     // ignore: unused_local_variable
     int size = reader.readInt32();
 
     String formType = reader.readFourCC();
-    if (formType != "sfbk") {
+    if (formType != 'sfbk') {
       throw "The type of the RIFF chunk must be 'sfbk', but was '$formType'.";
     }
 
@@ -89,7 +87,9 @@ class SoundFont {
 
   void _checkSamples() {
     // This offset is to ensure that out of range access is safe.
-    var sampleCount = waveData.bytes.lengthInBytes - 4;
+    var sampleCount =
+        waveData.length -
+        2; // Changed from bytes.lengthInBytes to length and adjusted for Int16
 
     for (SampleHeader sample in sampleHeaders) {
       if (!(0 <= sample.start && sample.start < sampleCount)) {
@@ -112,15 +112,19 @@ class SoundFont {
 
   void _checkRegions() {
     // This offset is to ensure that out of range access is safe.
-    var sampleCount = waveData.bytes.lengthInBytes - 4;
+    var sampleCount =
+        waveData.length -
+        2; // Changed from bytes.lengthInBytes to length and adjusted for Int16
 
     for (Instrument instrument in instruments) {
       for (InstrumentRegion region in instrument.regions) {
-        if (!(0 <= region.sampleStart() && region.sampleStart() < sampleCount)) {
+        if (!(0 <= region.sampleStart() &&
+            region.sampleStart() < sampleCount)) {
           throw "'sampleStart' is out of range. '${region.sample.name}'.'${instrument.name}'.";
         }
 
-        if (!(0 <= region.sampleStartLoop() && region.sampleStartLoop() < sampleCount)) {
+        if (!(0 <= region.sampleStartLoop() &&
+            region.sampleStartLoop() < sampleCount)) {
           throw "'sampleStartLoop' is out of range. '${region.sample.name}'.'${instrument.name}'.";
         }
 
@@ -128,7 +132,8 @@ class SoundFont {
           throw "'sampleEnd' is out of range. '${region.sample.name}'.'${instrument.name}'.";
         }
 
-        if (!(0 <= region.sampleEndLoop() && region.sampleEndLoop() <= sampleCount)) {
+        if (!(0 <= region.sampleEndLoop() &&
+            region.sampleEndLoop() <= sampleCount)) {
           throw "'sampleEndLoop' is out of range. '${region.sample.name}'.'${instrument.name}'.";
         }
 
@@ -137,8 +142,6 @@ class SoundFont {
           case LoopMode.continuous:
           case LoopMode.loopUntilNoteOff:
             break;
-          default:
-            throw "invalid loop mode. '${region.sample.name}'.'${instrument.name}'.";
         }
       }
     }

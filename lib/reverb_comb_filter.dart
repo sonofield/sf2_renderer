@@ -12,12 +12,12 @@ class CombFilter {
   double _damp2;
 
   CombFilter({required int bufferSize})
-      : buffer = Float32List(bufferSize),
-        _bufferIndex = 0,
-        _filterStore = 0.0,
-        feedback = 0.0,
-        _damp1 = 0.0,
-        _damp2 = 0.0;
+    : buffer = Float32List(bufferSize),
+      _bufferIndex = 0,
+      _filterStore = 0.0,
+      feedback = 0.0,
+      _damp1 = 0.0,
+      _damp2 = 0.0;
 
   void mute() {
     buffer.fillRange(0, buffer.length, 0);

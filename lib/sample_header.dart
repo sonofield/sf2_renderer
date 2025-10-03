@@ -1,4 +1,4 @@
-﻿import 'binary_reader.dart';
+import 'binary_reader.dart';
 import 'sample_type.dart';
 
 /// Represents a sample in the SoundFont.
@@ -30,17 +30,18 @@ class SampleHeader {
   final int link; // uint16
   final SampleType type;
 
-  SampleHeader(
-      {required this.name,
-      required this.start,
-      required this.end,
-      required this.startLoop,
-      required this.endLoop,
-      required this.sampleRate,
-      required this.originalPitch,
-      required this.pitchCorrection,
-      required this.link,
-      required this.type});
+  SampleHeader({
+    required this.name,
+    required this.start,
+    required this.end,
+    required this.startLoop,
+    required this.endLoop,
+    required this.sampleRate,
+    required this.originalPitch,
+    required this.pitchCorrection,
+    required this.link,
+    required this.type,
+  });
 
   factory SampleHeader.defaultSampleHeader() {
     return SampleHeader(
@@ -70,16 +71,17 @@ class SampleHeader {
     SampleType type = sampleTypeFromInt(reader.readUInt16());
 
     return SampleHeader(
-        name: name,
-        start: start,
-        end: end,
-        startLoop: startLoop,
-        endLoop: endLoop,
-        sampleRate: sampleRate,
-        originalPitch: originalPitch,
-        pitchCorrection: pitchCorrection,
-        link: link,
-        type: type);
+      name: name,
+      start: start,
+      end: end,
+      startLoop: startLoop,
+      endLoop: endLoop,
+      sampleRate: sampleRate,
+      originalPitch: originalPitch,
+      pitchCorrection: pitchCorrection,
+      link: link,
+      type: type,
+    );
   }
 
   static List<SampleHeader> readFromChunk(BinaryReader reader, int size) {
@@ -93,9 +95,7 @@ class SampleHeader {
     List<SampleHeader> headers = [];
 
     for (int i = 0; i < count; i++) {
-      headers.add(
-        SampleHeader.fromReader(reader),
-      );
+      headers.add(SampleHeader.fromReader(reader));
     }
 
     // The last one is the terminator.

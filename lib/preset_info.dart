@@ -1,4 +1,4 @@
-﻿import 'binary_reader.dart';
+import 'binary_reader.dart';
 
 class PresetInfo {
   final String name;
@@ -10,15 +10,16 @@ class PresetInfo {
   final int genre;
   final int morphology;
 
-  PresetInfo(
-      {required this.name,
-      required this.patchNumber,
-      required this.bankNumber,
-      required this.zoneStartIndex,
-      required this.zoneEndIndex,
-      required this.library,
-      required this.genre,
-      required this.morphology});
+  PresetInfo({
+    required this.name,
+    required this.patchNumber,
+    required this.bankNumber,
+    required this.zoneStartIndex,
+    required this.zoneEndIndex,
+    required this.library,
+    required this.genre,
+    required this.morphology,
+  });
 
   static List<PresetInfo> readFromChunk(BinaryReader reader, int size) {
     if (size == 0 || size % 38 != 0) {
@@ -38,16 +39,18 @@ class PresetInfo {
       int genre = reader.readInt32();
       int morphology = reader.readInt32();
 
-      p.add(PresetInfo(
-        name: name,
-        patchNumber: patchNumber,
-        bankNumber: bankNumber,
-        zoneStartIndex: zoneStartIndex,
-        zoneEndIndex: 0,
-        library: library,
-        genre: genre,
-        morphology: morphology,
-      ));
+      p.add(
+        PresetInfo(
+          name: name,
+          patchNumber: patchNumber,
+          bankNumber: bankNumber,
+          zoneStartIndex: zoneStartIndex,
+          zoneEndIndex: 0,
+          library: library,
+          genre: genre,
+          morphology: morphology,
+        ),
+      );
     }
 
     List<PresetInfo> presets = [];
@@ -55,16 +58,18 @@ class PresetInfo {
     for (int i = 0; i < count - 1; i++) {
       int zoneIndexEnd = p[i + 1].zoneStartIndex - 1;
 
-      presets.add(PresetInfo(
-        name: p[i].name,
-        patchNumber: p[i].patchNumber,
-        bankNumber: p[i].bankNumber,
-        zoneStartIndex: p[i].zoneStartIndex,
-        zoneEndIndex: zoneIndexEnd,
-        library: p[i].library,
-        genre: p[i].genre,
-        morphology: p[i].morphology,
-      ));
+      presets.add(
+        PresetInfo(
+          name: p[i].name,
+          patchNumber: p[i].patchNumber,
+          bankNumber: p[i].bankNumber,
+          zoneStartIndex: p[i].zoneStartIndex,
+          zoneEndIndex: zoneIndexEnd,
+          library: p[i].library,
+          genre: p[i].genre,
+          morphology: p[i].morphology,
+        ),
+      );
     }
 
     // the last one stays the same

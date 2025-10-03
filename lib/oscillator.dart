@@ -1,14 +1,13 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'dart:typed_data';
 
-import 'array_int16.dart';
-import 'synthesizer.dart';
 import 'loop_mode.dart';
+import 'synthesizer.dart';
 
 class Oscillator {
   final Synthesizer synthesizer;
 
-  ArrayInt16 _data = ArrayInt16.empty();
+  Int16List _data = Int16List(0);
   LoopMode _loopMode = LoopMode.noLoop;
   int _end = 0;
   int _startLoop = 0;
@@ -25,18 +24,19 @@ class Oscillator {
 
   Oscillator(this.synthesizer);
 
-  void start(
-      {required ArrayInt16 data,
-      required LoopMode loopMode,
-      required int sampleRate,
-      required int start,
-      required int end,
-      required int startLoop,
-      required int endLoop,
-      required int rootKey,
-      required int coarseTune,
-      required int fineTune,
-      required int scaleTuning}) {
+  void start({
+    required Int16List data,
+    required LoopMode loopMode,
+    required int sampleRate,
+    required int start,
+    required int end,
+    required int startLoop,
+    required int endLoop,
+    required int rootKey,
+    required int coarseTune,
+    required int fineTune,
+    required int scaleTuning,
+  }) {
     _data = data;
     _loopMode = loopMode;
     _end = end;
@@ -85,9 +85,10 @@ class Oscillator {
         if (t > 0) {
           // clear slice
           block.fillRange(
-              t, // startIdx
-              block.length, // endIdx
-              0.0); // value
+            t, // startIdx
+            block.length, // endIdx
+            0.0,
+          ); // value
           return true;
         } else {
           return false;

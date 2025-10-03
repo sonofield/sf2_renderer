@@ -11,20 +11,40 @@ class MidiFile {
   late List<Duration> _times;
 
   /// Loads a MIDI file from the file path.
-  factory MidiFile.fromFile(String path, {int? loopPoint, MidiFileLoopType? loopType}) {
+  factory MidiFile.fromFile(
+    String path, {
+    int? loopPoint,
+    MidiFileLoopType? loopType,
+  }) {
     BinaryReader reader = BinaryReader.fromFile(path);
 
-    return MidiFile.fromBinaryReader(reader, loopPoint: loopPoint, loopType: loopType);
+    return MidiFile.fromBinaryReader(
+      reader,
+      loopPoint: loopPoint,
+      loopType: loopType,
+    );
   }
 
   /// Loads a MIDI file from the byte data
-  factory MidiFile.fromByteData(ByteData bytes, {int? loopPoint, MidiFileLoopType? loopType}) {
+  factory MidiFile.fromByteData(
+    ByteData bytes, {
+    int? loopPoint,
+    MidiFileLoopType? loopType,
+  }) {
     BinaryReader reader = BinaryReader.fromByteData(bytes);
 
-    return MidiFile.fromBinaryReader(reader, loopPoint: loopPoint, loopType: loopType);
+    return MidiFile.fromBinaryReader(
+      reader,
+      loopPoint: loopPoint,
+      loopType: loopType,
+    );
   }
 
-  MidiFile.fromBinaryReader(BinaryReader reader, {int? loopPoint, MidiFileLoopType? loopType}) {
+  MidiFile.fromBinaryReader(
+    BinaryReader reader, {
+    int? loopPoint,
+    MidiFileLoopType? loopType,
+  }) {
     if (loopPoint != null && loopPoint < 0) {
       throw "The loop point must be a non-negative value.";
     }
@@ -33,7 +53,9 @@ class MidiFile {
   }
 
   static Duration getTimeSpanFromSeconds(double value) {
-    return Duration(microseconds: (value * Duration.microsecondsPerSecond).round());
+    return Duration(
+      microseconds: (value * Duration.microsecondsPerSecond).round(),
+    );
   }
 
   void _load(BinaryReader reader, int loopPoint, MidiFileLoopType loopType) {
@@ -55,7 +77,11 @@ class MidiFile {
     final trackCount = reader.readInt16BigEndian();
     final resolution = reader.readInt16BigEndian();
 
-    final messageLists = List<List<MidiMessage>>.filled(trackCount, [], growable: false);
+    final messageLists = List<List<MidiMessage>>.filled(
+      trackCount,
+      [],
+      growable: false,
+    );
     final tickLists = List<List<int>>.filled(trackCount, [], growable: false);
 
     for (int i = 0; i < trackCount; i++) {
@@ -86,7 +112,10 @@ class MidiFile {
     _times = mergedTracks.times;
   }
 
-  static _MidiMessagesAndTicks _readTrack(BinaryReader reader, MidiFileLoopType loopType) {
+  static _MidiMessagesAndTicks _readTrack(
+    BinaryReader reader,
+    MidiFileLoopType loopType,
+  ) {
     final chunkType = reader.readFourCC();
     if (chunkType != "MTrk") {
       throw "The chunk type must be 'MTrk', but was '$chunkType'.";
@@ -180,7 +209,10 @@ class MidiFile {
   }
 
   static _MidiMessagesAndTimes _mergeTracks(
-      List<List<MidiMessage>> messageLists, List<List<int>> tickLists, int resolution) {
+    List<List<MidiMessage>> messageLists,
+    List<List<int>> tickLists,
+    int resolution,
+  ) {
     final mergedMessages = <MidiMessage>[];
     final mergedTimes = <Duration>[];
 
@@ -210,7 +242,9 @@ class MidiFile {
 
       final nextTick = tickLists[minIndex][indices[minIndex]];
       final deltaTick = nextTick - currentTick;
-      final deltaTime = getTimeSpanFromSeconds(60.0 / (resolution * tempo) * deltaTick);
+      final deltaTime = getTimeSpanFromSeconds(
+        60.0 / (resolution * tempo) * deltaTick,
+      );
 
       currentTick += deltaTick;
       currentTime += deltaTime;
@@ -264,8 +298,12 @@ class MidiMessage {
 
   MidiMessage._(this.channel, this.command, this.data1, this.data2);
 
-  factory MidiMessage.common(int status, int data1,
-      [int data2 = 0, MidiFileLoopType loopType = MidiFileLoopType.none]) {
+  factory MidiMessage.common(
+    int status,
+    int data1, [
+    int data2 = 0,
+    MidiFileLoopType loopType = MidiFileLoopType.none,
+  ]) {
     final channel = status & 0x0F;
     final command = status & 0xF0;
 
@@ -306,7 +344,12 @@ class MidiMessage {
     final command = tempo >> 16;
     final data1 = tempo >> 8;
     final data2 = tempo;
-    return MidiMessage._(MidiMessageType.tempoChange.value, command, data1, data2);
+    return MidiMessage._(
+      MidiMessageType.tempoChange.value,
+      command,
+      data1,
+      data2,
+    );
   }
 
   factory MidiMessage.loopStart() {

@@ -1,16 +1,16 @@
-﻿import 'dart:typed_data';
+import 'dart:math';
+import 'dart:typed_data';
 
-import 'modulation_envelope.dart';
-import 'volume_envelope.dart';
-import 'lfo.dart';
-import 'oscillator.dart';
 import 'bi_quad_filter.dart';
-import 'synthesizer.dart';
+import 'channel.dart';
+import 'lfo.dart';
+import 'modulation_envelope.dart';
+import 'oscillator.dart';
+import 'region_ex.dart';
 import 'region_pair.dart';
 import 'soundfont_math.dart';
-import 'region_ex.dart';
-import 'dart:math';
-import 'channel.dart';
+import 'synthesizer.dart';
+import 'volume_envelope.dart';
 
 enum VoiceState { playing, releaseRequested, released }
 
@@ -78,13 +78,13 @@ class Voice {
   bool _isSostenutoTarget = false;
 
   Voice(this.synthesizer)
-      : _volEnv = VolumeEnvelope(synthesizer),
-        _modEnv = ModulationEnvelope(synthesizer),
-        _vibLfo = Lfo(synthesizer),
-        _modLfo = Lfo(synthesizer),
-        _oscillator = Oscillator(synthesizer),
-        _filter = BiQuadFilter(synthesizer),
-        _block = Float32List(synthesizer.blockSize);
+    : _volEnv = VolumeEnvelope(synthesizer),
+      _modEnv = ModulationEnvelope(synthesizer),
+      _vibLfo = Lfo(synthesizer),
+      _modLfo = Lfo(synthesizer),
+      _oscillator = Oscillator(synthesizer),
+      _filter = BiQuadFilter(synthesizer),
+      _block = Float32List(synthesizer.blockSize);
 
   void start(RegionPair region, int channel, int key, int velocity) {
     _exclusiveClass = region.exclusiveClass();
@@ -98,7 +98,10 @@ class Voice {
       var sampleAttenuation = 0.4 * region.initialAttenuation();
       var filterAttenuation = 0.5 * region.initialFilterQ();
 
-      var decibels = 2 * SoundFontMath.linearToDecibels(velocity / 127.0) - sampleAttenuation - filterAttenuation;
+      var decibels =
+          2 * SoundFontMath.linearToDecibels(velocity / 127.0) -
+          sampleAttenuation -
+          filterAttenuation;
 
       _noteGain = SoundFontMath.decibelsToLinear(decibels);
     } else {
@@ -173,8 +176,10 @@ class Voice {
     _vibLfo.process();
     _modLfo.process();
 
-    var vibPitchChange = (0.01 * channelInfo.modulation + _vibLfoToPitch) * _vibLfo.value();
-    var modPitchChange = _modLfoToPitch * _modLfo.value() + _modEnvToPitch * _modEnv.value();
+    var vibPitchChange =
+        (0.01 * channelInfo.modulation + _vibLfoToPitch) * _vibLfo.value();
+    var modPitchChange =
+        _modLfoToPitch * _modLfo.value() + _modEnvToPitch * _modEnv.value();
     var channelPitchChange = channelInfo.tune + channelInfo.pitchBend;
 
     var pitch = _key + vibPitchChange + modPitchChange + channelPitchChange;
@@ -184,7 +189,8 @@ class Voice {
     }
 
     if (_dynamicCutoff) {
-      var cents = _modLfoToCutoff * _modLfo.value() + _modEnvToCutoff * _modEnv.value();
+      var cents =
+          _modLfoToCutoff * _modLfo.value() + _modEnvToCutoff * _modEnv.value();
       var factor = SoundFontMath.centsToMultiplyingFactor(cents);
       var newCutoff = factor * _cutoff;
 
@@ -234,8 +240,14 @@ class Voice {
       _currentMixGainRight = mixGain * sin(angle);
     }
 
-    _currentReverbSend = (channelInfo.reverbSend + _instrumentReverb).clamp(0, 1);
-    _currentChorusSend = (channelInfo.chorusSend + _instrumentChorus).clamp(0, 1);
+    _currentReverbSend = (channelInfo.reverbSend + _instrumentReverb).clamp(
+      0,
+      1,
+    );
+    _currentChorusSend = (channelInfo.chorusSend + _instrumentChorus).clamp(
+      0,
+      1,
+    );
 
     if (_voiceLength == 0) {
       _previousMixGainLeft = _currentMixGainLeft;

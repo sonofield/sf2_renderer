@@ -1,7 +1,7 @@
-﻿import 'dart:typed_data';
+import 'dart:typed_data';
 
-import 'reverb_comb_filter.dart';
 import 'reverb_all_pass_filter.dart';
+import 'reverb_comb_filter.dart';
 
 // This reverb implementation is based on Freeverb, a domain reverb
 // implementation by Jezar at Dreampoint.
@@ -62,7 +62,12 @@ class Reverb {
   double _wet2 = 0;
   double _width = 0;
 
-  Reverb({required this.cfsL, required this.cfsR, required this.apfsL, required this.apfsR});
+  Reverb({
+    required this.cfsL,
+    required this.cfsR,
+    required this.apfsL,
+    required this.apfsR,
+  });
 
   factory Reverb.withSampleRate(int sampleRate) {
     List<CombFilter> cfsL = [
@@ -73,7 +78,7 @@ class Reverb {
       CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningL5)),
       CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningL6)),
       CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningL7)),
-      CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningL8))
+      CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningL8)),
     ];
 
     List<CombFilter> cfsR = [
@@ -84,21 +89,21 @@ class Reverb {
       CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningR5)),
       CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningR6)),
       CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningR7)),
-      CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningR8))
+      CombFilter(bufferSize: scaleTuning(sampleRate, cfTuningR8)),
     ];
 
     List<AllPassFilter> apfsL = [
       AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningL1)),
       AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningL2)),
       AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningL3)),
-      AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningL4))
+      AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningL4)),
     ];
 
     List<AllPassFilter> apfsR = [
       AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningR1)),
       AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningR2)),
       AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningR3)),
-      AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningR4))
+      AllPassFilter(bufferSize: scaleTuning(sampleRate, apfTuningR4)),
     ];
 
     for (AllPassFilter apf in apfsL) {
@@ -119,7 +124,11 @@ class Reverb {
     return r;
   }
 
-  void process(Float32List input, Float32List outputLeft, Float32List outputRight) {
+  void process(
+    Float32List input,
+    Float32List outputLeft,
+    Float32List outputRight,
+  ) {
     outputLeft.fillRange(0, outputLeft.length, 0.0);
     outputRight.fillRange(0, outputRight.length, 0.0);
 

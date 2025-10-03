@@ -23,5 +23,5 @@ enum MidiFileLoopType {
   /// The Final Fantasy style loop.
   /// CC #116 and #117 will be the start and end points of the loop.
   /// </summary>
-  finalFantasy
+  finalFantasy,
 }

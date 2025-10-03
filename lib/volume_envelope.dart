@@ -1,8 +1,8 @@
-﻿import 'soundfont_math.dart';
-import 'synthesizer.dart';
-import 'envelope_stage.dart';
-
 import 'dart:math';
+
+import 'envelope_stage.dart';
+import 'soundfont_math.dart';
+import 'synthesizer.dart';
 
 class VolumeEnvelope {
   final Synthesizer synthesizer;
@@ -27,13 +27,14 @@ class VolumeEnvelope {
 
   VolumeEnvelope(this.synthesizer);
 
-  void start(
-      {required double delay,
-      required double attack,
-      required double hold,
-      required double decay,
-      required double sustain,
-      required double release}) {
+  void start({
+    required double delay,
+    required double attack,
+    required double hold,
+    required double decay,
+    required double sustain,
+    required double release,
+  }) {
     _attackSlope = 1 / attack;
     _decaySlope = -9.226 / decay;
     _releaseSlope = -9.226 / release;

@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'dart:typed_data';
 
 class Chorus {
@@ -13,24 +13,28 @@ class Chorus {
   int _delayTableIndexL;
   int _delayTableIndexR;
 
-  Chorus(
-      {required Float32List bufferL,
-      required Float32List bufferR,
-      required Float32List delayTable,
-      required int bufferIndexL,
-      required int bufferIndexR,
-      required int delayTableIndexL,
-      required int delayTableIndexR})
-      : _bufferL = bufferL,
-        _bufferR = bufferR,
-        _delayTable = delayTable,
-        _bufferIndexL = bufferIndexL,
-        _bufferIndexR = bufferIndexR,
-        _delayTableIndexL = delayTableIndexL,
-        _delayTableIndexR = delayTableIndexR;
+  Chorus({
+    required Float32List bufferL,
+    required Float32List bufferR,
+    required Float32List delayTable,
+    required int bufferIndexL,
+    required int bufferIndexR,
+    required int delayTableIndexL,
+    required int delayTableIndexR,
+  }) : _bufferL = bufferL,
+       _bufferR = bufferR,
+       _delayTable = delayTable,
+       _bufferIndexL = bufferIndexL,
+       _bufferIndexR = bufferIndexR,
+       _delayTableIndexL = delayTableIndexL,
+       _delayTableIndexR = delayTableIndexR;
 
-  factory Chorus.create(
-      {required int sampleRate, required double delay, required double depth, required double frequency}) {
+  factory Chorus.create({
+    required int sampleRate,
+    required double delay,
+    required double depth,
+    required double frequency,
+  }) {
     Float32List delayTable = Float32List((sampleRate / frequency).round());
 
     for (var t = 0; t < delayTable.length; t++) {
@@ -41,20 +45,22 @@ class Chorus {
     int sampleCount = ((sampleRate * (delay + depth)) + 2).toInt();
 
     return Chorus(
-        bufferL: Float32List(sampleCount),
-        bufferR: Float32List(sampleCount),
-        delayTable: delayTable,
-        bufferIndexL: 0,
-        bufferIndexR: 0,
-        delayTableIndexL: 0,
-        delayTableIndexR: delayTable.length ~/ 4);
+      bufferL: Float32List(sampleCount),
+      bufferR: Float32List(sampleCount),
+      delayTable: delayTable,
+      bufferIndexL: 0,
+      bufferIndexR: 0,
+      delayTableIndexL: 0,
+      delayTableIndexR: delayTable.length ~/ 4,
+    );
   }
 
-  void process(
-      {required Float32List inputLeft,
-      required Float32List inputRight,
-      required Float32List outputLeft,
-      required Float32List outputRight}) {
+  void process({
+    required Float32List inputLeft,
+    required Float32List inputRight,
+    required Float32List outputLeft,
+    required Float32List outputRight,
+  }) {
     for (int t = 0; t < outputLeft.length; t++) {
       double position = _bufferIndexL - _delayTable[_delayTableIndexL];
       if (position < 0.0) {

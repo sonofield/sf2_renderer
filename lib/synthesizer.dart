@@ -1,20 +1,20 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'dart:typed_data';
 
-import 'audio_renderer.dart';
-import 'soundfont.dart';
-import 'channel.dart';
-import 'voice.dart';
-import 'voice_collection.dart';
 import 'array_math.dart';
-import 'reverb.dart';
+import 'audio_renderer.dart';
+import 'channel.dart';
 import 'chorus.dart';
-import 'synthesizer_settings.dart';
+import 'instrument_region.dart';
 import 'preset.dart';
 import 'preset_region.dart';
-import 'instrument_region.dart';
 import 'region_pair.dart';
+import 'reverb.dart';
+import 'soundfont.dart';
 import 'soundfont_math.dart';
+import 'synthesizer_settings.dart';
+import 'voice.dart';
+import 'voice_collection.dart';
 
 /// An instance of the SoundFont synthesizer.
 /// Note: that this class does not provide thread safety.
@@ -91,30 +91,36 @@ class Synthesizer implements AudioRenderer {
     required Float32List? chorusInputRight,
     required Float32List? chorusOutputLeft,
     required Float32List? chorusOutputRight,
-  })  : _presetLookup = presetLookup,
-        _defaultPreset = defaultPreset,
-        _blockLeft = blockLeft,
-        _blockRight = blockRight,
-        _inverseBlockSize = inverseBlockSize,
-        _blockRead = blockRead,
-        _enableReverbAndChorus = enableReverbAndChorus,
-        _reverb = reverb,
-        _reverbInput = reverbInput,
-        _reverbOutputLeft = reverbOutputLeft,
-        _reverbOutputRight = reverbOutputRight,
-        _chorus = chorus,
-        _chorusInputLeft = chorusInputLeft,
-        _chorusInputRight = chorusInputRight,
-        _chorusOutputLeft = chorusOutputLeft,
-        _chorusOutputRight = chorusOutputRight;
+  }) : _presetLookup = presetLookup,
+       _defaultPreset = defaultPreset,
+       _blockLeft = blockLeft,
+       _blockRight = blockRight,
+       _inverseBlockSize = inverseBlockSize,
+       _blockRead = blockRead,
+       _enableReverbAndChorus = enableReverbAndChorus,
+       _reverb = reverb,
+       _reverbInput = reverbInput,
+       _reverbOutputLeft = reverbOutputLeft,
+       _reverbOutputRight = reverbOutputRight,
+       _chorus = chorus,
+       _chorusInputLeft = chorusInputLeft,
+       _chorusInputRight = chorusInputRight,
+       _chorusOutputLeft = chorusOutputLeft,
+       _chorusOutputRight = chorusOutputRight;
 
-  factory Synthesizer.loadByteData(ByteData data, [SynthesizerSettings? settings]) {
+  factory Synthesizer.loadByteData(
+    ByteData data, [
+    SynthesizerSettings? settings,
+  ]) {
     SoundFont sf = SoundFont.fromByteData(data);
 
     return Synthesizer.load(sf, settings ?? SynthesizerSettings());
   }
 
-  factory Synthesizer.loadPath(String soundFontPath, [SynthesizerSettings? settings]) {
+  factory Synthesizer.loadPath(
+    String soundFontPath, [
+    SynthesizerSettings? settings,
+  ]) {
     var sf = SoundFont.fromFile(soundFontPath);
     return Synthesizer.load(sf, settings ?? SynthesizerSettings());
   }
@@ -145,7 +151,12 @@ class Synthesizer implements AudioRenderer {
 
     Chorus? chorus = rc == false
         ? null
-        : Chorus.create(sampleRate: settings.sampleRate, delay: 0.002, depth: 0.0019, frequency: 0.4);
+        : Chorus.create(
+            sampleRate: settings.sampleRate,
+            delay: 0.002,
+            depth: 0.0019,
+            frequency: 0.4,
+          );
 
     Synthesizer synth = Synthesizer(
       soundFont: soundFont,
@@ -193,10 +204,11 @@ class Synthesizer implements AudioRenderer {
     }
 
     this.processMidiMessage(
-        channel: channel,
-        command: 0xC0, // program change
-        data1: this.soundFont.presets[preset].patchNumber,
-        data2: 0);
+      channel: channel,
+      command: 0xC0, // program change
+      data1: this.soundFont.presets[preset].patchNumber,
+      data2: 0,
+    );
 
     this.processMidiMessage(
       channel: channel,
@@ -206,7 +218,12 @@ class Synthesizer implements AudioRenderer {
     );
   }
 
-  void processMidiMessage({required int channel, required int command, required int data1, required int data2}) {
+  void processMidiMessage({
+    required int channel,
+    required int command,
+    required int data1,
+    required int data2,
+  }) {
     if (!(0 <= channel && channel < channels.length)) {
       return;
     }
@@ -352,7 +369,9 @@ class Synthesizer implements AudioRenderer {
     // Try fallback to the GM sound set.
     // Normally, the given patch number + the bank number 0 will work.
     // For drums (bank number >= 128), it seems to be better to select the standard set (128:0).
-    var gmPresetId = channelInfo.bankNumber < 128 ? channelInfo.patchNumber : (128 << 16);
+    var gmPresetId = channelInfo.bankNumber < 128
+        ? channelInfo.patchNumber
+        : (128 << 16);
     preset ??= _presetLookup[gmPresetId];
 
     // No corresponding preset was found. Use the default.
@@ -360,9 +379,13 @@ class Synthesizer implements AudioRenderer {
 
     for (PresetRegion presetRegion in preset.regions) {
       if (presetRegion.contains(key, velocity)) {
-        for (InstrumentRegion instrumentRegion in presetRegion.instrument.regions) {
+        for (InstrumentRegion instrumentRegion
+            in presetRegion.instrument.regions) {
           if (instrumentRegion.contains(key, velocity)) {
-            var regionPair = RegionPair(preset: presetRegion, instrument: instrumentRegion);
+            var regionPair = RegionPair(
+              preset: presetRegion,
+              instrument: instrumentRegion,
+            );
 
             var voice = _voices.requestNew(instrumentRegion, channel);
 
@@ -463,54 +486,99 @@ class Synthesizer implements AudioRenderer {
       var previousGainRight = masterVolume * voice.previousMixGainRight();
       var currentGainRight = masterVolume * voice.currentMixGainRight();
 
-      _writeBlock(previousGainRight, currentGainRight, voice.block(), _blockRight);
+      _writeBlock(
+        previousGainRight,
+        currentGainRight,
+        voice.block(),
+        _blockRight,
+      );
     }
 
     if (_enableReverbAndChorus) {
-      _chorusInputLeft!.fillRange(0, _chorusInputLeft!.length, 0);
-      _chorusInputRight!.fillRange(0, _chorusInputRight!.length, 0);
+      _chorusInputLeft!.fillRange(0, _chorusInputLeft.length, 0);
+      _chorusInputRight!.fillRange(0, _chorusInputRight.length, 0);
 
       for (Voice voice in _voices) {
-        var previousGainLeft = voice.previousChorusSend() * voice.previousMixGainLeft();
-        var currentGainLeft = voice.currentChorusSend() * voice.currentMixGainLeft();
+        var previousGainLeft =
+            voice.previousChorusSend() * voice.previousMixGainLeft();
+        var currentGainLeft =
+            voice.currentChorusSend() * voice.currentMixGainLeft();
 
-        _writeBlock(previousGainLeft, currentGainLeft, voice.block(), _chorusInputLeft!);
+        _writeBlock(
+          previousGainLeft,
+          currentGainLeft,
+          voice.block(),
+          _chorusInputLeft,
+        );
 
-        var previousGainRight = voice.previousChorusSend() * voice.previousMixGainRight();
-        var currentGainRight = voice.currentChorusSend() * voice.currentMixGainRight();
+        var previousGainRight =
+            voice.previousChorusSend() * voice.previousMixGainRight();
+        var currentGainRight =
+            voice.currentChorusSend() * voice.currentMixGainRight();
 
-        _writeBlock(previousGainRight, currentGainRight, voice.block(), _chorusInputRight!);
+        _writeBlock(
+          previousGainRight,
+          currentGainRight,
+          voice.block(),
+          _chorusInputRight,
+        );
       }
 
       _chorus!.process(
-          inputLeft: _chorusInputLeft!,
-          inputRight: _chorusInputRight!,
-          outputLeft: _chorusOutputLeft!,
-          outputRight: _chorusOutputRight!);
+        inputLeft: _chorusInputLeft,
+        inputRight: _chorusInputRight,
+        outputLeft: _chorusOutputLeft!,
+        outputRight: _chorusOutputRight!,
+      );
 
-      multiplyAdd(factorA: masterVolume, factorB: _chorusOutputLeft!, dest: _blockLeft);
-      multiplyAdd(factorA: masterVolume, factorB: _chorusOutputRight!, dest: _blockRight);
+      multiplyAdd(
+        factorA: masterVolume,
+        factorB: _chorusOutputLeft,
+        dest: _blockLeft,
+      );
+      multiplyAdd(
+        factorA: masterVolume,
+        factorB: _chorusOutputRight,
+        dest: _blockRight,
+      );
 
-      _reverbInput!.fillRange(0, _reverbInput!.length, 0);
+      _reverbInput!.fillRange(0, _reverbInput.length, 0);
 
       for (Voice voice in _voices) {
-        var previousMixGain = voice.previousMixGainLeft() + voice.previousMixGainRight();
-        var currentMixGain = voice.currentMixGainLeft() + voice.currentMixGainRight();
+        var previousMixGain =
+            voice.previousMixGainLeft() + voice.previousMixGainRight();
+        var currentMixGain =
+            voice.currentMixGainLeft() + voice.currentMixGainRight();
 
-        var previousGain = _reverb!.inputGain() * voice.previousReverbSend() * previousMixGain;
-        var currentGain = _reverb!.inputGain() * voice.currentReverbSend() * currentMixGain;
+        var previousGain =
+            _reverb!.inputGain() * voice.previousReverbSend() * previousMixGain;
+        var currentGain =
+            _reverb.inputGain() * voice.currentReverbSend() * currentMixGain;
 
-        _writeBlock(previousGain, currentGain, voice.block(), _reverbInput!);
+        _writeBlock(previousGain, currentGain, voice.block(), _reverbInput);
       }
 
-      _reverb!.process(_reverbInput!, _reverbOutputLeft!, _reverbOutputRight!);
+      _reverb!.process(_reverbInput, _reverbOutputLeft!, _reverbOutputRight!);
 
-      multiplyAdd(factorA: masterVolume, factorB: _reverbOutputLeft!, dest: _blockLeft);
-      multiplyAdd(factorA: masterVolume, factorB: _reverbOutputRight!, dest: _blockRight);
+      multiplyAdd(
+        factorA: masterVolume,
+        factorB: _reverbOutputLeft,
+        dest: _blockLeft,
+      );
+      multiplyAdd(
+        factorA: masterVolume,
+        factorB: _reverbOutputRight,
+        dest: _blockRight,
+      );
     }
   }
 
-  void _writeBlock(double previousGain, double currentGain, Float32List source, Float32List destination) {
+  void _writeBlock(
+    double previousGain,
+    double currentGain,
+    Float32List source,
+    Float32List destination,
+  ) {
     if (max(previousGain, currentGain) < SoundFontMath.nonAudible) {
       return;
     }
@@ -520,7 +588,12 @@ class Synthesizer implements AudioRenderer {
     } else {
       var step = _inverseBlockSize * (currentGain - previousGain);
 
-      multiplyAddStep(factorA: previousGain, step: step, factorB: source, dest: destination);
+      multiplyAddStep(
+        factorA: previousGain,
+        step: step,
+        factorB: source,
+        dest: destination,
+      );
     }
   }
 

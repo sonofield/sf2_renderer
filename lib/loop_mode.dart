@@ -1,4 +1,4 @@
-﻿/// Specifies how the synthesizer loops the sample.
+/// Specifies how the synthesizer loops the sample.
 enum LoopMode {
   /// The sample will be played without loop.
   noLoop,
@@ -7,7 +7,7 @@ enum LoopMode {
   continuous,
 
   /// The sample will loop until the note stops.
-  loopUntilNoteOff
+  loopUntilNoteOff,
 }
 
 LoopMode loopModeFromInt(int i) {

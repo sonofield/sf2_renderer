@@ -1,7 +1,7 @@
-﻿import 'preset_region.dart';
-import 'preset_info.dart';
-import 'zone.dart';
 import 'instrument.dart';
+import 'preset_info.dart';
+import 'preset_region.dart';
+import 'zone.dart';
 
 /// Represents a preset in the SoundFont.
 class Preset {
@@ -35,13 +35,20 @@ class Preset {
     );
   }
 
-  factory Preset.fromInfo(PresetInfo info, List<Zone> zones, List<Instrument> instruments) {
+  factory Preset.fromInfo(
+    PresetInfo info,
+    List<Zone> zones,
+    List<Instrument> instruments,
+  ) {
     var zoneCount = info.zoneEndIndex - info.zoneStartIndex + 1;
     if (zoneCount <= 0) {
       throw "The preset '${info.name}' has no zone.";
     }
 
-    List<Zone> zoneSpan = zones.sublist(info.zoneStartIndex, info.zoneStartIndex + zoneCount);
+    List<Zone> zoneSpan = zones.sublist(
+      info.zoneStartIndex,
+      info.zoneStartIndex + zoneCount,
+    );
 
     List<PresetRegion> regions = PresetRegion.create(zoneSpan, instruments);
 
@@ -56,7 +63,11 @@ class Preset {
     );
   }
 
-  static List<Preset> create(List<PresetInfo> infos, List<Zone> zones, List<Instrument> instruments) {
+  static List<Preset> create(
+    List<PresetInfo> infos,
+    List<Zone> zones,
+    List<Instrument> instruments,
+  ) {
     if (infos.length <= 1) {
       throw "No valid preset was found.";
     }

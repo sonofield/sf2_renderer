@@ -1,4 +1,4 @@
-﻿import 'binary_reader.dart';
+import 'binary_reader.dart';
 
 class ZoneInfo {
   final int generatorIndex;
@@ -6,11 +6,12 @@ class ZoneInfo {
   final int generatorCount;
   final int modulatorCount;
 
-  ZoneInfo(
-      {required this.generatorIndex,
-      required this.modulatorIndex,
-      required this.generatorCount,
-      required this.modulatorCount});
+  ZoneInfo({
+    required this.generatorIndex,
+    required this.modulatorIndex,
+    required this.generatorCount,
+    required this.modulatorCount,
+  });
 
   static List<ZoneInfo> readFromChunk(BinaryReader reader, int size) {
     if (size % 4 != 0) {
@@ -25,7 +26,14 @@ class ZoneInfo {
       int genIdx = reader.readUInt16();
       int modIdx = reader.readUInt16();
 
-      z.add(ZoneInfo(generatorIndex: genIdx, modulatorIndex: modIdx, generatorCount: 0, modulatorCount: 0));
+      z.add(
+        ZoneInfo(
+          generatorIndex: genIdx,
+          modulatorIndex: modIdx,
+          generatorCount: 0,
+          modulatorCount: 0,
+        ),
+      );
     }
 
     List<ZoneInfo> zones = [];
@@ -34,11 +42,14 @@ class ZoneInfo {
       int generatorCount = z[i + 1].generatorIndex - z[i].generatorIndex;
       int modulatorCount = z[i + 1].modulatorIndex - z[i].modulatorIndex;
 
-      zones.add(ZoneInfo(
+      zones.add(
+        ZoneInfo(
           generatorIndex: z[i].generatorIndex,
           modulatorIndex: z[i].modulatorIndex,
           generatorCount: generatorCount,
-          modulatorCount: modulatorCount));
+          modulatorCount: modulatorCount,
+        ),
+      );
     }
 
     // the last one stays the same

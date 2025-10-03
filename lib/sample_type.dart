@@ -1,4 +1,4 @@
-﻿enum SampleType {
+enum SampleType {
   // 'none' should only be found in
   // the 'terminator' SampleHeader
   none,
@@ -9,7 +9,7 @@
   romMono,
   romRight,
   romLeft,
-  romLinked
+  romLinked,
 }
 
 SampleType sampleTypeFromInt(int i) {
