@@ -91,22 +91,22 @@ class Synthesizer implements AudioRenderer {
     required Float32List? chorusInputRight,
     required Float32List? chorusOutputLeft,
     required Float32List? chorusOutputRight,
-  }) : _presetLookup = presetLookup,
-       _defaultPreset = defaultPreset,
-       _blockLeft = blockLeft,
-       _blockRight = blockRight,
-       _inverseBlockSize = inverseBlockSize,
-       _blockRead = blockRead,
-       _enableReverbAndChorus = enableReverbAndChorus,
-       _reverb = reverb,
-       _reverbInput = reverbInput,
-       _reverbOutputLeft = reverbOutputLeft,
-       _reverbOutputRight = reverbOutputRight,
-       _chorus = chorus,
-       _chorusInputLeft = chorusInputLeft,
-       _chorusInputRight = chorusInputRight,
-       _chorusOutputLeft = chorusOutputLeft,
-       _chorusOutputRight = chorusOutputRight;
+  })  : _presetLookup = presetLookup,
+        _defaultPreset = defaultPreset,
+        _blockLeft = blockLeft,
+        _blockRight = blockRight,
+        _inverseBlockSize = inverseBlockSize,
+        _blockRead = blockRead,
+        _enableReverbAndChorus = enableReverbAndChorus,
+        _reverb = reverb,
+        _reverbInput = reverbInput,
+        _reverbOutputLeft = reverbOutputLeft,
+        _reverbOutputRight = reverbOutputRight,
+        _chorus = chorus,
+        _chorusInputLeft = chorusInputLeft,
+        _chorusInputRight = chorusInputRight,
+        _chorusOutputLeft = chorusOutputLeft,
+        _chorusOutputRight = chorusOutputRight;
 
   factory Synthesizer.loadByteData(
     ByteData data, [
@@ -369,9 +369,8 @@ class Synthesizer implements AudioRenderer {
     // Try fallback to the GM sound set.
     // Normally, the given patch number + the bank number 0 will work.
     // For drums (bank number >= 128), it seems to be better to select the standard set (128:0).
-    var gmPresetId = channelInfo.bankNumber < 128
-        ? channelInfo.patchNumber
-        : (128 << 16);
+    var gmPresetId =
+        channelInfo.bankNumber < 128 ? channelInfo.patchNumber : (128 << 16);
     preset ??= _presetLookup[gmPresetId];
 
     // No corresponding preset was found. Use the default.
@@ -495,8 +494,8 @@ class Synthesizer implements AudioRenderer {
     }
 
     if (_enableReverbAndChorus) {
-      _chorusInputLeft!.fillRange(0, _chorusInputLeft.length, 0);
-      _chorusInputRight!.fillRange(0, _chorusInputRight.length, 0);
+      _chorusInputLeft!.fillRange(0, _chorusInputLeft!.length, 0);
+      _chorusInputRight!.fillRange(0, _chorusInputRight!.length, 0);
 
       for (Voice voice in _voices) {
         var previousGainLeft =
@@ -508,7 +507,7 @@ class Synthesizer implements AudioRenderer {
           previousGainLeft,
           currentGainLeft,
           voice.block(),
-          _chorusInputLeft,
+          _chorusInputLeft!,
         );
 
         var previousGainRight =
@@ -520,29 +519,29 @@ class Synthesizer implements AudioRenderer {
           previousGainRight,
           currentGainRight,
           voice.block(),
-          _chorusInputRight,
+          _chorusInputRight!,
         );
       }
 
       _chorus!.process(
-        inputLeft: _chorusInputLeft,
-        inputRight: _chorusInputRight,
+        inputLeft: _chorusInputLeft!,
+        inputRight: _chorusInputRight!,
         outputLeft: _chorusOutputLeft!,
         outputRight: _chorusOutputRight!,
       );
 
       multiplyAdd(
         factorA: masterVolume,
-        factorB: _chorusOutputLeft,
+        factorB: _chorusOutputLeft!,
         dest: _blockLeft,
       );
       multiplyAdd(
         factorA: masterVolume,
-        factorB: _chorusOutputRight,
+        factorB: _chorusOutputRight!,
         dest: _blockRight,
       );
 
-      _reverbInput!.fillRange(0, _reverbInput.length, 0);
+      _reverbInput!.fillRange(0, _reverbInput!.length, 0);
 
       for (Voice voice in _voices) {
         var previousMixGain =
@@ -553,21 +552,21 @@ class Synthesizer implements AudioRenderer {
         var previousGain =
             _reverb!.inputGain() * voice.previousReverbSend() * previousMixGain;
         var currentGain =
-            _reverb.inputGain() * voice.currentReverbSend() * currentMixGain;
+            _reverb!.inputGain() * voice.currentReverbSend() * currentMixGain;
 
-        _writeBlock(previousGain, currentGain, voice.block(), _reverbInput);
+        _writeBlock(previousGain, currentGain, voice.block(), _reverbInput!);
       }
 
-      _reverb!.process(_reverbInput, _reverbOutputLeft!, _reverbOutputRight!);
+      _reverb!.process(_reverbInput!, _reverbOutputLeft!, _reverbOutputRight!);
 
       multiplyAdd(
         factorA: masterVolume,
-        factorB: _reverbOutputLeft,
+        factorB: _reverbOutputLeft!,
         dest: _blockLeft,
       );
       multiplyAdd(
         factorA: masterVolume,
-        factorB: _reverbOutputRight,
+        factorB: _reverbOutputRight!,
         dest: _blockRight,
       );
     }
